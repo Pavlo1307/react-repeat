@@ -1,23 +1,36 @@
-import logo from './logo.svg';
-import './App.css';
+import {useEffect, useReducer, useState} from "react";
+import {getUsers} from "./components/service/api";
+import Users from "./components/Users";
+
+function reducer (state, action){
+    switch (action.type){
+        case 'setUsers':
+            return {
+                ...state,
+                users: action.payload
+            }
+
+    }
+  return state;
+}
 
 function App() {
+  let [{ users }, dispatch] = useReducer(reducer,{users: []});
+
+
+  useEffect(()=>{
+      getUsers().then(({data}) => dispatch({ type: 'setUsers', payload: data }));
+  },[]);
+
+
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+
+        <button onClick={ ()=> dispatch({ type : 'INC_B', payload:1 }) }>click B</button>
+
+        <Users  items={users}/>
+
     </div>
   );
 }
