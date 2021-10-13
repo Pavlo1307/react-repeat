@@ -1,5 +1,5 @@
 import {useEffect, useReducer, useState} from "react";
-import {getUsers} from "./components/service/api";
+import {getUser, getUsers} from "./components/service/api";
 import Users from "./components/Users";
 
 function reducer (state, action){
@@ -15,24 +15,29 @@ function reducer (state, action){
 }
 
 function App() {
-  let [{ users }, dispatch] = useReducer(reducer,{users: []});
+  // let [{ users }, dispatch] = useReducer(reducer,{users: []});
+  //
+  // useEffect(()=>{
+  //     getUsers().then(({data}) => dispatch({ type: 'setUsers', payload: data }));
+  // },[]);
+    let [users, setUsers] = useState([]);
 
-
-  useEffect(()=>{
-      getUsers().then(({data}) => dispatch({ type: 'setUsers', payload: data }));
-  },[]);
-
+    function showUsers () {
+        getUsers().then(value => setUsers(value.data))
+    }
 
 
   return (
     <div>
 
-        <button onClick={ ()=> dispatch({ type : 'INC_B', payload:1 }) }>click B</button>
+        {/*<div><button onClick={()=>showUserPosts(user.id)}>show posts</button></div>*/}
 
         <Users  items={users}/>
 
+        <div><button onClick={()=>showUsers()}>show users</button></div>
+
     </div>
   );
-}
+};
 
 export default App;
