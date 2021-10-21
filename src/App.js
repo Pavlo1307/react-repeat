@@ -1,43 +1,70 @@
-import {useEffect, useReducer, useState} from "react";
-import {getUser, getUsers} from "./components/service/api";
-import Users from "./components/Users";
-
-function reducer (state, action){
-    switch (action.type){
-        case 'setUsers':
-            return {
-                ...state,
-                users: action.payload
-            }
-
-    }
-  return state;
-}
+import {useSelector, useDispatch} from "react-redux";
+import {createRef, useEffect, useState} from "react";
+import {todosReducer} from "./redux/reducers/todos";
+import CreateTodos from "./todos/CreateTodos";
+import {addTodos, changeTodos, deleteTodo, pushTodos} from "./redux/actionTypes";
+import ListTodos from "./todos/ListTodos";
 
 function App() {
-  // let [{ users }, dispatch] = useReducer(reducer,{users: []});
-  //
-  // useEffect(()=>{
-  //     getUsers().then(({data}) => dispatch({ type: 'setUsers', payload: data }));
-  // },[]);
-    let [users, setUsers] = useState([]);
 
-    function showUsers () {
-        getUsers().then(value => setUsers(value.data))
+    const { todos }  = useSelector(store => store.todosReducer)
+    const dispatch = useDispatch();
+
+    const fetchTodos = async () => {
+        const res = await fetch('http://localhost:8888/get-todos')
+        const data = await res.json();
+
+        dispatch(addTodos(data))
     }
 
+    useEffect(() => {
+        fetchTodos();
+    }, [])
 
-  return (
-    <div>
 
-        {/*<div><button onClick={()=>showUserPosts(user.id)}>show posts</button></div>*/}
+    const onTodoCreate = async (title, description) => {
+        const res = await fetch('http://localhost:8888/create-todo', {
+            method: 'POST',
+            body: JSON.stringify({title, description}),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
 
-        <Users  items={users}/>
+        const data = await res.json();
 
-        <div><button onClick={()=>showUsers()}>show users</button></div>
+        dispatch(pushTodos(data))
 
-    </div>
-  );
+    }
+
+    const onChangeTodo = async (id, completed) =>{
+        const res = await fetch('http://localhost:8888/update-todo/'+ id, {
+            method: 'PATCH',
+            body: JSON.stringify({completed: !completed}),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        const data = await res.json();
+        dispatch(changeTodos(data));
+
+    }
+
+    const onDelete = async (id) =>{
+        const res = await fetch('http://localhost:8888/delete-todo/'+id, {
+            method: "DELETE",
+        });
+        dispatch(deleteTodo(id))
+
+    }
+
+    return (
+        <div>
+            <CreateTodos onSubmit={onTodoCreate}/>
+            <ListTodos todos={todos} onChangeTodo={onChangeTodo} onDelete={onDelete}/>
+        </div>
+
+    );
 };
 
 export default App;
