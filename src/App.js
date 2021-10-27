@@ -6,7 +6,7 @@ import {addTodos, changeTodos, deleteTodo, pushTodos} from "./redux/actionTypes"
 import ListTodos from "./todos/ListTodos";
 
 function App() {
-
+    console.log('ddddd')
     const { todos }  = useSelector(store => store.todosReducer)
     const dispatch = useDispatch();
 
